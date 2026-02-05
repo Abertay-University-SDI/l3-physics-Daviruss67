@@ -69,6 +69,8 @@ void Level::update(float dt)
 
 	m_sheep.update(dt);
 	for (auto pig : m_pigPointers) pig->update(dt);
+
+	m_sheep.SetWorldSize(m_background.getSize());
 }
 
 // Render level

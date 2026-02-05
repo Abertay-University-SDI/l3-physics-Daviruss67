@@ -1,5 +1,5 @@
 #include "Sheep.h"
-
+#include <iostream>;
 Sheep::Sheep()
 {
 	// initialise animations
@@ -38,131 +38,48 @@ Sheep::~Sheep()
 {
 }
 
-void Sheep::handleInput(float dt)
+void Sheep::SetWorldSize(sf::Vector2f worldSize)
 {
-	// set sheep direction
-	// decrement and check the input buffer.
-	m_inputBuffer -= dt;
-	if (m_inputBuffer > 0)
-	{
-		// not long enough has passed since the last input change, so don't handle input
-		return;
-	}
-	// grab this to detect changes per frame for later
-	Direction last_dir = m_direction;
-
-	// sheep brake
-	if (m_input->isKeyDown(sf::Keyboard::Scancode::Space))
-	{
-		m_direction = Direction::NONE;
-		return;
-	}
-
-	// Set 8-directional movement based on WASD
-	if (m_input->isKeyDown(sf::Keyboard::Scancode::A))
-	{
-		if (m_input->isKeyDown(sf::Keyboard::Scancode::W))
-		{
-			m_direction = Direction::UP_LEFT;
-			m_currentAnimation = &m_walkUpRight;
-			m_currentAnimation->setFlipped(true);
-		}
-
-
-		else if (m_input->isKeyDown(sf::Keyboard::Scancode::S))
-		{
-			m_direction = Direction::DOWN_LEFT;
-			m_currentAnimation = &m_walkDownRight;
-			m_currentAnimation->setFlipped(true);
-		}
-		else
-		{
-			m_direction = Direction::LEFT;
-			m_currentAnimation = &m_walkRight;
-			m_currentAnimation->setFlipped(true);
-		}
-
-	}
-	else if (m_input->isKeyDown(sf::Keyboard::Scancode::D))
-	{
-		if (m_input->isKeyDown(sf::Keyboard::Scancode::W))
-		{
-			m_direction = Direction::UP_RIGHT;
-			m_currentAnimation = &m_walkUpRight;
-			m_currentAnimation->setFlipped(false);
-		}
-		else if (m_input->isKeyDown(sf::Keyboard::Scancode::S))
-		{
-			m_direction = Direction::DOWN_RIGHT;
-			m_currentAnimation = &m_walkDownRight;
-			m_currentAnimation->setFlipped(false);
-		}
-		else
-		{
-			m_direction = Direction::RIGHT;
-			m_currentAnimation = &m_walkRight;
-			m_currentAnimation->setFlipped(false);
-		}
-
-	}
-	else
-	{
-		if (m_input->isKeyDown(sf::Keyboard::Scancode::W))
-		{
-			m_direction = Direction::UP;
-			m_currentAnimation = &m_walkUp;
-
-		}
-
-		else if (m_input->isKeyDown(sf::Keyboard::Scancode::S))
-		{
-			m_direction = Direction::DOWN;
-			m_currentAnimation = &m_walkDown;
-		}
-	}
-
-	// set input buffer if needed, this makes diagonal movement easier
-	if (m_direction != last_dir)
-		m_inputBuffer = INPUT_BUFFER_LENGTH;
+	m_worldSize = worldSize;
 }
 
+void Sheep::handleInput(float dt)
+{
+	sf::Vector2f inputDir = {0,0};
+
+	if (m_input->isKeyDown(sf::Keyboard::Scancode::W)) 
+	{
+		inputDir += {0, -1};
+	}
+	if (m_input->isKeyDown(sf::Keyboard::Scancode::S)) 
+	{
+		inputDir += {0, 1};
+	}
+	if (m_input->isKeyDown(sf::Keyboard::Scancode::D)) 
+	{
+		inputDir += {1,0};
+	}
+	if (m_input->isKeyDown(sf::Keyboard::Scancode::A))
+	{
+		inputDir += {-1, 0};
+	}
+
+	m_acceleration = inputDir * acceleration;
+}
 
 void Sheep::update(float dt)
 {
-	setTextureRect(m_currentAnimation->getCurrentFrame());
-	if (m_direction != Direction::NONE)
-		m_currentAnimation->animate(dt);
+	m_velocity += (m_acceleration * dt) * m_drag;
 
-	// move the sheep
-	// for diagonal movement
-	float diagonal_speed = m_speed * APPROX_ONE_OVER_ROOT_TWO * dt;
-	float orthog_speed = m_speed * dt;	// orthogonal movement
+	move(m_velocity * dt);
 
-	switch (m_direction)
+	if (getPosition().x < 0 || getPosition().x > m_worldSize.x) 
 	{
-	case Direction::UP:
-		move({ 0, -orthog_speed });
-		break;
-	case Direction::UP_RIGHT:
-		move({ diagonal_speed, -diagonal_speed });
-		break;
-	case Direction::RIGHT:
-		move({ orthog_speed,0 });
-		break;
-	case Direction::DOWN_RIGHT:
-		move({ diagonal_speed, diagonal_speed });
-		break;
-	case Direction::DOWN:
-		move({ 0, orthog_speed });
-		break;
-	case Direction::DOWN_LEFT:
-		move({ -diagonal_speed, diagonal_speed });
-		break;
-	case Direction::LEFT:
-		move({ -orthog_speed,0 });
-		break;
-	case Direction::UP_LEFT:
-		move({ -diagonal_speed, -diagonal_speed });
-		break;
+		std::cout << "Out of world border";
 	}
+	if (getPosition().y < 0 || getPosition().y > m_worldSize.y) 
+	{
+		std::cout << "Out of world border";
+	}
+
 }

@@ -9,17 +9,16 @@ class Sheep :
 public:
 	Sheep();
 	~Sheep();
+	void SetWorldSize(sf::Vector2f worldSize);
 
 	void handleInput(float dt) override;
 	void update(float dt) override;
 
 private:
-	enum class Direction { UP, DOWN, LEFT, RIGHT, UP_RIGHT, DOWN_RIGHT, DOWN_LEFT, UP_LEFT, NONE };
-	Direction m_direction = Direction::NONE;
-	float m_speed = 300.0f;
-	float m_inputBuffer = 0.f;
-	const float INPUT_BUFFER_LENGTH = 0.1f;
-	const float APPROX_ONE_OVER_ROOT_TWO = 0.70710678f;	// 1 / sqrt(2)
+	const float acceleration = 30.f;
+	const float m_drag = 0.95f;
+	sf::Vector2f m_acceleration;
+	sf::Vector2f m_worldSize;
 
 	Animation m_walkDown;
 	Animation m_walkUp;
