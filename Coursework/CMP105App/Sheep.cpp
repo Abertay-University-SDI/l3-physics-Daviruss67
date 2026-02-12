@@ -38,11 +38,6 @@ Sheep::~Sheep()
 {
 }
 
-void Sheep::SetWorldSize(sf::Vector2f worldSize)
-{
-	m_worldSize = worldSize;
-}
-
 void Sheep::handleInput(float dt)
 {
 	sf::Vector2f inputDir = {0,0};
@@ -63,7 +58,7 @@ void Sheep::handleInput(float dt)
 	{
 		inputDir += {-1, 0};
 	}
-
+	
 	m_acceleration = inputDir * acceleration;
 }
 
@@ -71,15 +66,27 @@ void Sheep::update(float dt)
 {
 	m_velocity += (m_acceleration * dt) * m_drag;
 
-	move(m_velocity * dt);
+	move(m_velocity);
 
-	if (getPosition().x < 0 || getPosition().x > m_worldSize.x) 
+	checkWallAndBounce();
+}
+
+void Sheep::checkWallAndBounce()
+{
+	sf::Vector2f pos = getPosition();
+	sf::Vector2f size = getSize();
+	if(m_velocity.x < 0 && pos.x < 0 || m_velocity.x > 0 && pos.x + size.x > m_worldSize.x)
 	{
-		std::cout << "Out of world border";
+		m_velocity *= -COEFF_OF_RESTITUTION;
 	}
-	if (getPosition().y < 0 || getPosition().y > m_worldSize.y) 
+	if(m_velocity.y < 0 && pos.y < 0 || m_velocity.y > 0&& pos.y + size.y > m_worldSize.y)
 	{
-		std::cout << "Out of world border";
+		m_velocity *= -COEFF_OF_RESTITUTION;
 	}
 
+}
+
+void Sheep::collisionResponse(GameObject& collider)
+{
+	m_velocity *= -COEFF_OF_RESTITUTION;
 }

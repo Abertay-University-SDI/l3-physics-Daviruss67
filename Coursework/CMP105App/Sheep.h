@@ -9,7 +9,13 @@ class Sheep :
 public:
 	Sheep();
 	~Sheep();
-	void SetWorldSize(sf::Vector2f worldSize);
+	void SetWorldSize(float right, float bottom) 
+	{ 
+		m_worldSize = { right, bottom };
+	};
+
+	void checkWallAndBounce();
+	void collisionResponse(GameObject& collider) override;
 
 	void handleInput(float dt) override;
 	void update(float dt) override;
@@ -17,6 +23,7 @@ public:
 private:
 	const float acceleration = 30.f;
 	const float m_drag = 0.95f;
+	const float COEFF_OF_RESTITUTION = 0.8f;
 	sf::Vector2f m_acceleration;
 	sf::Vector2f m_worldSize;
 

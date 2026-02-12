@@ -208,3 +208,8 @@ void Pig::update(float dt)
 	}
 	
 }
+
+void Pig::collisionResponse(GameObject& collider)
+{
+	std::cout << "Smashed into a sheep\n";
+}
